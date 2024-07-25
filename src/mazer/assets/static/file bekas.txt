@@ -1,0 +1,114 @@
+//! JQuery in User plus
+$(document).ready(function () {
+	$("#formInput").submit(function (e) {
+		$.ajax({
+			type: "POST",
+			url: $(this).attr("action"),
+			data: $(this).serialize(),
+			dataType: "JSON",
+			success: function (response) {
+				if (response.error) {
+					// $('.msg').html(response.error).show();
+					$("#username_error").html(response.error.username);
+					$("#nama_error").html(response.error.nama);
+					$("#password_error").html(response.error.password);
+					$("#level_error").html(response.error.level);
+				} else {
+					$("#ok").modal("hide"); // Tutup modal jika berhasil
+					myTable.DataTable().ajax.reload();
+				}
+			},
+			error: function (xhr, ajaxOptions, thrownError) {
+				alert(xhr.status + "\n" + xhr.responseText + "\n" + thrownError);
+			},
+		});
+		return false;
+	});
+});
+
+//! File Html user
+<?php $no = 1;
+						foreach ($getData as $us):
+							?>
+							<tr>
+								<td>
+									<?= $no++; ?>
+								</td>
+								<td>
+									<?= $us['username'] ?>
+								</td>
+								<td>
+									<?= $us['nama'] ?>
+								</td>
+								<td>
+									<?= $us['level'] ?>
+								</td>
+								<td>
+									<button type="button" class="btn btn-outline-primary dt-center" data-bs-toggle="modal"
+										data-bs-target="#oy<?= $us['id_user'] ?>">Update</button>
+									<button type="button" class="btn btn-outline-danger dt-center">Delete</button>
+								</td>
+
+								<!-- Modal Update -->
+								<div class="modal fade text-left" id="oy<?= $us['id_user'] ?>" tabindex="-1" role="dialog"
+									aria-labelledby="myModalLabel1" aria-hidden="true">
+									<div class="modal-dialog modal-dialog-scrollable" role="document">
+										<?php $attributes = array('id' => 'formUpdate'); ?>
+										<?= form_open('User/userUpdate', $attributes); ?>
+										<input type="hidden" name="id_user" value="<?= $us['id_user'] ?>">
+										<div class="modal-content">
+											<div class="modal-header">
+												<h5 class="modal-title" id="modalTitleUpdate">Basic Modal</h5>
+												<button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+													aria-label="Close">
+													<i data-feather="x"></i>
+												</button>
+											</div>
+											<div class="modal-body">
+												<div class="form-group">
+													<div class="form-group">
+														<label for="username">Username</label>
+														<div class="position-relative has-validation">
+															<input name="username" type="text"
+																value="<?= $us['username'] ?>" class="form-control mt-2"
+																readonly>
+														</div>
+													</div>
+													<div class="form-group">
+														<label for="name">Name</label>
+														<div class="position-relative">
+															<input name="nama" value="<?= $us['nama'] ?>" type="text"
+																class="form-control mt-2">
+														</div>
+													</div>
+													<div class="form-group">
+														<label for="level">Level</label>
+														<div class="position-relative">
+															<select class="form-select" name="level">
+																<option value="Kasir" <?php if ($us['level'] == 'Kasir') {
+																	# code...
+																	echo "selected";
+																} ?>>Kasir</option>
+																<option value="Admin" <?php if ($us['level'] == 'Admin') {
+																	# code...
+																	echo "selected";
+																} ?>>Admin</option>
+															</select>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="modal-footer">
+												<button type="button" class="btn btn-light-primary" data-bs-dismiss="modal">
+													<span class="d-none d-sm-block">Close</span>
+												</button>
+												<button type="submit" class="btn btn-primary ms-1" data-bs-dismiss="modal">
+													<span class="d-none d-sm-block">Update</span>
+												</button>
+											</div>
+										</div>
+										<?= form_close(); ?>
+									</div>
+								</div>
+							</tr>
+						<?php endforeach ?>
